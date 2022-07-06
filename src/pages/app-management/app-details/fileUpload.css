@@ -1,0 +1,37 @@
+.uploadProgressDiv {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.image-and-url-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.file-chooser-button {
+    border: 1px solid teal;
+    padding: 0.6em 2em;
+    position: relative;
+    color: teal;
+    background: none;
+}
+
+.file-input {
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.upload-button {
+    background: teal;
+    border: 1px solid teal;
+    color: #fff;
+    padding: 0.6em 2em;
+}

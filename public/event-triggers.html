@@ -1,0 +1,139 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Events</title>
+  <!-- documentation:
+    https://docs.google.com/document/d/1ikbui12Q8two_CqEytKTB6aaBrvqr6EnEo4T7Uk4gRE/edit?usp=sharing -->
+  <script>
+    _jr = {};  // global variable
+    var searchParams = new URLSearchParams(window.location.search);
+    _jr.fbPixelId = searchParams.get('fid');
+    if (!_jr.fbPixelId) {
+      console.warn('fbPixelId not found');
+    }
+    _jr.snapPixelId = searchParams.get('sid');
+    if (!_jr.snapPixelId) {
+      console.warn('scPixelId not found');
+    }
+    _jr.email = searchParams.get('email');
+    if (!_jr.email) {
+      console.warn('email not found');
+    }
+    _jr.phone = searchParams.get('phone');
+    if (!_jr.phone) {
+      console.warn('phone not found');
+    }
+    _jr.transactionId = searchParams.get('transaction-id');
+    if (!_jr.transactionId) {
+      _jr.transactionId = Date.now() + '-' + Math.random();
+      console.warn('transaction_id not found');
+    }
+    _jr.signUp = searchParams.get('sign-up') || searchParams.get('SIGN_UP') || searchParams.get('sign_up');
+    _jr.firstGamePlayed = searchParams.get('first-game') || searchParams.get('COMPLETE_TUTORIAL') || searchParams.get('complete_tutorial');
+    _jr.purchase = searchParams.get('purchase');
+    _jr.purchaseCurrency = searchParams.get('purchase-currency') || 'USD';
+    var pValue = parseInt(searchParams.get('purchase-value'));
+    _jr.purchaseValue = isNaN(pValue) ? 30.00 : pValue;
+    try {
+      _jr.userAgent = window.navigator.userAgent;
+    } catch (e) { console.error('window.navigator.userAgent not found'); }
+    _jr.parameterisedFbEvent = searchParams.get('fb-ev');
+    _jr.parameterisedScEvent = searchParams.get('sc-ev');
+    _jr.unique_event_id = searchParams.get('unique_event_id');
+    console.info(_jr);
+  </script>
+
+  <!-- Facebook Pixel Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', _jr.fbPixelId);
+    // fbq('track', 'PageView');
+  </script>
+  <!-- End Facebook Pixel Code -->
+
+  <!-- Snap Pixel Code -->
+  <script type='text/javascript'>
+    (function(e,t,n){if(e.snaptr)return;var a=e.snaptr=function()
+    {a.handleRequest?a.handleRequest.apply(a,arguments):a.queue.push(arguments)};
+    a.queue=[];var s='script';r=t.createElement(s);r.async=!0;
+    r.src=n;var u=t.getElementsByTagName(s)[0];
+    u.parentNode.insertBefore(r,u);})(window,document,
+    'https://sc-static.net/scevent.min.js');
+    snaptr('init', _jr.snapPixelId, {
+      'user_hashed_email': _jr.email,
+      'user_hashed_phone_number': _jr.phone,
+    });
+    // snaptr('track', 'PAGE_VIEW', {
+    //   description: 'from WebView',
+    //   item_category: _jr.userAgent,
+    // });
+  </script>
+  <!-- End Snap Pixel Code -->
+</head>
+<body>
+  <!-- noscript tag will not work because fetching pixel ID needs JS
+  <noscript>
+    <img height="1" width="1" style="display:none" 
+        src="https://www.facebook.com/tr?id={your-pixel-id-goes-here}&ev=PageView&noscript=1"/>
+  </noscript> -->
+
+  <script>
+    if (_jr.signUp === '1') {
+      // Send events for registration
+      const eventPayload = {};
+      if (_jr.unique_event_id) {
+        fbq('track', 'CompleteRegistration', eventPayload, { eventID: _jr.unique_event_id });
+      }
+      // todo
+      // item_category is not supported in SIGN_UP
+      // find alternate event/detail field for sending userAgent
+      // snaptr('track','SIGN_UP', { item_category: _jr.userAgent });
+      snaptr('track','SIGN_UP');
+    }
+
+    if (_jr.firstGamePlayed === '1') {
+      // Send events for first game played
+      const eventPayload = {};
+      if (_jr.unique_event_id) {
+        fbq('track', 'CustomizeProduct', eventPayload, { eventID: _jr.unique_event_id });
+      }
+      snaptr('track','ADD_CART', { item_category: _jr.userAgent });
+    }
+
+    if (_jr.purchase === '1') {
+      // Send events for purchase
+      const eventPayload = {
+        currency: _jr.purchaseCurrency,
+        value: _jr.purchaseValue,
+      };
+      if (_jr.unique_event_id) {
+        fbq('track', 'Purchase', eventPayload, { eventID: _jr.unique_event_id });
+      }
+      snaptr('track','PURCHASE', {
+        currency: _jr.purchaseCurrency,
+        price: _jr.purchaseValue,
+        item_category: _jr.userAgent,
+        transaction_id: _jr.transactionId,
+      });
+    }
+
+    if (_jr.parameterisedFbEvent) {
+      if (_jr.unique_event_id) {
+        fbq('track', _jr.parameterisedFbEvent, { eventID: _jr.unique_event_id });
+      }
+    }
+
+    if (_jr.parameterisedScEvent) {
+      snaptr('track', _jr.parameterisedScEvent);
+    }
+  </script>
+</body>
+</html>
